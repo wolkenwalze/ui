@@ -1,26 +1,34 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import Menu from "./menu/menu";
+import PodScenarioMenuEntry from "./scenarios/pod/menu";
+import HTTPMonitorMenuEntry from "./scenarios/http/menu";
+import Output from "./output/Output";
+import Editor from "./editor/Editor";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+interface AppProps {
+
 }
 
-export default App;
+interface AppState {
+
+}
+
+export default class App extends React.Component<AppProps, AppState> {
+    render() {
+        return <div className={"app"}>
+            <div className={"app__sidebar"}>
+                <Menu>
+                    <PodScenarioMenuEntry />
+                    <HTTPMonitorMenuEntry />
+                </Menu>
+            </div>
+            <div className={"app__main"}>
+                <Editor />
+            </div>
+            <div className={"app__result"}>
+                <Output />
+            </div>
+        </div>
+    }
+}

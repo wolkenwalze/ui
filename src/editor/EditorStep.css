@@ -1,0 +1,139 @@
+
+.editor__step__wrapper {
+    position: relative;
+    margin: 0 0.75rem;
+    padding-top:0.75rem;
+    padding-bottom:0.75rem;
+}
+
+.editor__step__wrapper--warning .editor__step {
+    border-color: #ffaa00;
+}
+
+.editor__step__warning__handle {
+    cursor:help;
+    position:absolute;
+    top:0.2rem;
+    right:1rem;
+    display: block;
+    font-size:1rem;
+    background:#fff;
+    text-align: center;
+    border-radius:0.2rem;
+    border: 1px solid #ffaa00;
+    padding-left:0.375rem;
+    padding-right:0.375rem;
+}
+
+.editor__step {
+    background:#fff;
+    border:1px solid #333;
+    min-height:3rem;
+    line-height:3rem;
+    border-radius:0.75rem;
+}
+
+.editor__step__out {
+    position: absolute;
+    bottom:0.5rem;
+    height:0.75rem;
+    width:100%;
+}
+
+.editor__step__in {
+    position: absolute;
+    top:0.292rem;
+    height:0.75rem;
+    width:100%;
+}
+
+.editor__step__out__handle, .editor__step__in__handle {
+    content: " ";
+    display:block;
+    margin-left:auto;
+    margin-right:auto;
+    width:0.834rem;
+    height:0.834rem;
+    border-radius:50%;
+    background:#fff;
+    border:0.083rem solid #333;
+    cursor: grab;
+}
+
+.editor__step__out__handle:hover, .editor__step__in__handle:hover {
+    background: #6fc8ff;
+}
+
+.editor__step__header {
+    display: flex;
+    height:3rem;
+    flex-direction: row;
+    padding-left:1.5rem;
+    padding-right:1.5rem;
+    cursor: grab;
+}
+
+.editor__step__icon {
+    height:3rem;
+    width:3rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.editor__step__icon svg {
+    align-self: center;
+    height:2rem;
+    width:2rem;
+}
+
+.editor__step__title {
+    margin:0;
+    padding:0;
+    height:3rem;
+    line-height:3rem;
+    font-size:1.2rem;
+}
+
+.editor__step__content {
+    border-top: 1px solid #333;
+    border-bottom: 1px solid #333;
+}
+.editor__step__content table {
+    border-collapse: collapse;
+    width:100%;
+}
+.editor__step__content tr th, .editor__step__content tr td {
+    padding-left:0.75rem;
+    padding-right:0.75rem;
+}
+
+.editor__step__footer {
+    display: flex;
+    flex-direction: row;
+}
+
+.editor__step__button {
+    margin:0.75rem;
+    border-radius:0.375rem;
+    border: 1px solid #333;
+    height:1.5rem;
+    background:#eee;
+    padding-left:0.75rem;
+    padding-right:0.75rem;
+    cursor: pointer;
+    flex:1;
+}
+
+.editor__step__button[disabled] {
+    cursor: default;
+    color:#777;
+}
+
+.editor__step__button:hover {
+    background-color: #6fc8ff;
+}
+
+.editor__step__button[disabled]:hover {
+    background-color: #eee;
+}
