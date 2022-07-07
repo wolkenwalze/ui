@@ -114,7 +114,7 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
                 >
                     {
                         phase.steps.map((step) =>
-                            <EditorStep id={step.id} type={step.type} key={step.id} draggable={true}/>
+                            <EditorStep id={step.id} type={step.type} key={step.id} draggable={true} warning={(step.inboundConnections.length == 0?"No inbound connections":"")}/>
                         )
                     }
                 </EditorPhase>

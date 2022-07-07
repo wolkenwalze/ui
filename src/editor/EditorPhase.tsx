@@ -95,6 +95,4 @@ export default class EditorPhase extends React.Component<EditorPhaseProps, Edito
             {this.props.children}
         </div>
     }
-
-
 }
