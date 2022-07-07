@@ -50,6 +50,7 @@ jobs:
       - name: Sync artifacts
         run: |
           set -euo pipefail
+          rm -rf ./dist/*
           rsync -avz --exclude=.git --delete ./build/ ./dist/
       - name: Deploy
         run: |

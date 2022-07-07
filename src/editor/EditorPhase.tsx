@@ -5,6 +5,7 @@ interface EditorPhaseProps {
     children?: JSX.Element|JSX.Element[]|string
     onDropType?: (type: string) => void
     onDropID?: (id: string) => void
+    noDrops?: boolean
 }
 
 interface EditorPhaseState {
@@ -20,6 +21,9 @@ export default class EditorPhase extends React.Component<EditorPhaseProps, Edito
     }
 
     onDrop = (e: React.DragEvent<HTMLDivElement>) => {
+        if (this.props.noDrops) {
+            return
+        }
         e.stopPropagation();
         e.preventDefault();
         const eventType = e.dataTransfer.getData("text/x-workflow-event-type")
@@ -41,6 +45,10 @@ export default class EditorPhase extends React.Component<EditorPhaseProps, Edito
     }
 
     canHandleDrop = (e: React.DragEvent<HTMLDivElement>):boolean =>  {
+        if (this.props.noDrops) {
+            return false
+        }
+
         for (let i=0; i < e.dataTransfer.types.length; i++) {
             if (e.dataTransfer.types[i] === "text/x-workflow-event-type" || e.dataTransfer.types[i] === "text/x-workflow-event-id") {
                 return true
@@ -56,21 +64,21 @@ export default class EditorPhase extends React.Component<EditorPhaseProps, Edito
         e.stopPropagation();
         e.preventDefault();
 
-        this.setState((state) => {
+        this.setState(() => {
             return {
                 dropping: true,
             }
         })
     }
 
-    onDragExit = (e: React.DragEvent<HTMLDivElement>) => {
+    onDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
         if (!this.canHandleDrop(e)) {
             return
         }
         e.stopPropagation();
         e.preventDefault();
 
-        this.setState((state) => {
+        this.setState(() => {
             return {
                 dropping: false,
             }
@@ -81,7 +89,7 @@ export default class EditorPhase extends React.Component<EditorPhaseProps, Edito
         return <div
             className={"editor__phase" + (this.state.dropping?" editor__phase--dragover":"")}
             onDragOver={this.onDragOver}
-            onDragExit={this.onDragExit}
+            onDragLeave={this.onDragLeave}
             onDrop={this.onDrop}
         >
             {this.props.children}

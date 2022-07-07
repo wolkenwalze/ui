@@ -2,9 +2,10 @@ import "./Editor.css";
 import React from "react";
 import EditorPhase from "./EditorPhase";
 import EditorStep from "./EditorStep";
+import SchemaService, {Spec, Step as SchemaStep} from "../SchemaService";
 
 interface EditorProps {
-
+    updateService: SchemaService
 }
 
 interface EditorState {
@@ -47,9 +48,40 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
         }
     }
 
+    setStateAndPropagate = (newState: EditorState) => {
+        this.setState(() => {
+            return {
+                phases: Editor.cleanupPhases(newState.phases),
+            }
+        })
+        const steps: Map<string, SchemaStep> = new Map()
+        for (const phase of newState.phases) {
+            for (const step of phase.steps) {
+                steps.set(step.id, {
+                    id: step.id,
+                    type: step.type,
+                    params: new Map(),
+                    nextSteps: []
+                })
+                for (const prevStep of step.inboundConnections) {
+                    steps.get(prevStep)?.nextSteps.push(step.id)
+                }
+            }
+        }
+        const finalSteps: SchemaStep[] = []
+        steps.forEach((value) => {
+            finalSteps.push(value)
+        })
+        const spec: Spec = {
+            initialSteps: [],
+            steps: finalSteps,
+        }
+        this.props.updateService.onUpdateData(spec)
+    }
+
     render() {
         return <div className={"editor"}>
-            <EditorPhase>
+            <EditorPhase noDrops={true}>
                 <div className={"editor__step__wrapper"}>
                     <div className={"editor__step"}>
                         <header className={"editor__step__header"}>
@@ -63,29 +95,22 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
                 </div>
             </EditorPhase>
             {this.state.phases.map((phase, i) => {
-                return <EditorPhase key={i}
-                                    onDropType={(type) => {
-                                        const phases = this.state.phases;
-                                        phases[i].steps.push(createStep(type))
-                                        this.setState((state) => {
-                                            return {
-                                                phases: Editor.cleanupPhases(phases),
-                                            }
-                                        })
-                                    }}
-                                    onDropID={(id) => {
-                                        const phases = this.state.phases;
-                                        const step = Editor.findAndRemoveStep(id, phases);
-                                        if (step == null) {
-                                            return
-                                        }
-                                        phases[i].steps.push(step)
-                                        this.setState((state) => {
-                                            return {
-                                                phases: Editor.cleanupPhases(phases),
-                                            }
-                                        })
-                                    }}
+                return <EditorPhase
+                    key={i}
+                    onDropType={(type) => {
+                        const phases = this.state.phases;
+                        phases[i].steps.push(createStep(type))
+                        this.setStateAndPropagate({phases})
+                    }}
+                    onDropID={(id) => {
+                        const phases = this.state.phases;
+                        const step = Editor.findAndRemoveStep(id, phases);
+                        if (step == null) {
+                            return
+                        }
+                        phases[i].steps.push(step)
+                        this.setStateAndPropagate({phases})
+                    }}
                 >
                     {
                         phase.steps.map((step) =>
@@ -105,11 +130,7 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
                     };
                     phases.push(phase)
 
-                    this.setState((state) => {
-                        return {
-                            phases: Editor.cleanupPhases(phases),
-                        }
-                    })
+                    this.setStateAndPropagate({phases})
                 }}
                 onDropID={(id) => {
                     const phases = this.state.phases;
@@ -123,11 +144,7 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
                         ]
                     };
                     phases.push(phase)
-                    this.setState((state) => {
-                        return {
-                            phases: Editor.cleanupPhases(phases),
-                        }
-                    })
+                    this.setStateAndPropagate({phases})
                 }}
             >
                 <span style={{
@@ -153,7 +170,6 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
     private static cleanupPhases(phases: EditorPhaseData[]): EditorPhaseData[] {
         for (let i = 0; i < phases.length; i++) {
             const steps = phases[i].steps
-            console.log(steps.length, steps)
             if (steps.length === 0) {
                 phases.splice(i, 1)
             }
