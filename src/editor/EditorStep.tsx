@@ -7,6 +7,7 @@ interface EditorStepProps {
     warning?: string
     type: string
     id: string
+    draggable: boolean
 }
 
 interface EditorStepState {
@@ -25,8 +26,8 @@ export default class EditorStep extends React.Component<EditorStepProps, EditorS
 
     render() {
         return <div
-            className={"editor__step__wrapper" + (this.props.warning ? " editor__step__wrapper--warning" : "")}
-            draggable={true}
+            className={"editor__step__wrapper" + (this.props.draggable?" editor__step__wrapper--draggable":"") + (this.props.warning ? " editor__step__wrapper--warning" : "")}
+            draggable={this.props.draggable}
             onDragStart={this.onDragStart}
         >
             <div className={"editor__step__in"}>

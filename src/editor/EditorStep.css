@@ -64,13 +64,16 @@
     background: #6fc8ff;
 }
 
+.editor__step__wrapper--draggable .editor__step__header {
+    cursor: grab;
+}
+
 .editor__step__header {
     display: flex;
     height:3rem;
     flex-direction: row;
     padding-left:1.5rem;
     padding-right:1.5rem;
-    cursor: grab;
 }
 
 .editor__step__icon {

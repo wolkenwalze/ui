@@ -89,7 +89,7 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
                 >
                     {
                         phase.steps.map((step) =>
-                            <EditorStep id={step.id} type={step.type} key={step.id}/>
+                            <EditorStep id={step.id} type={step.type} key={step.id} draggable={true}/>
                         )
                     }
                 </EditorPhase>

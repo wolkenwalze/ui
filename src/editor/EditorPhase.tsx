@@ -41,9 +41,12 @@ export default class EditorPhase extends React.Component<EditorPhaseProps, Edito
     }
 
     canHandleDrop = (e: React.DragEvent<HTMLDivElement>):boolean =>  {
-        const eventType = e.dataTransfer.getData("text/x-workflow-event-type")
-        const eventID = e.dataTransfer.getData("text/x-workflow-event-id")
-        return ((eventType !== "" && this.props.onDropType !== null) || (eventID !== "" && this.props.onDropID !== null))
+        for (let i=0; i < e.dataTransfer.types.length; i++) {
+            if (e.dataTransfer.types[i] === "text/x-workflow-event-type" || e.dataTransfer.types[i] === "text/x-workflow-event-id") {
+                return true
+            }
+        }
+        return false
     }
 
     onDragOver = (e: React.DragEvent<HTMLDivElement>) => {
