@@ -1,0 +1,31 @@
+.line {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+}
+
+.line__component {
+    flex: 1;
+}
+
+.line .line__component--1 {
+    border-bottom:1px solid #000;
+}
+.line .line__component--2 {
+    border-top:1px solid #000;
+}
+
+.line--up.line--left .line__component--1,
+.line--down.line--right .line__component--1,
+.line--down.line--left .line__component--2,
+.line--up.line--right .line__component--2 {
+    border-left:2px solid #000;
+}
+
+
+.line--up.line--right .line__component--1,
+.line--down.line--left .line__component--1,
+.line--up.line--left .line__component--2,
+.line--down.line--right .line__component--2 {
+    border-right:2px solid #000;
+}

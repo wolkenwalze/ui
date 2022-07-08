@@ -33,6 +33,10 @@
     border-radius:0.75rem;
 }
 
+.editor__step.editor__step--connecting {
+    background-color: #6fc8ff;
+}
+
 .editor__step__out {
     position: absolute;
     bottom:0.5rem;
@@ -45,6 +49,7 @@
     top:0.292rem;
     height:0.75rem;
     width:100%;
+    opacity: 0;
 }
 
 .editor__step__out__handle, .editor__step__in__handle {
