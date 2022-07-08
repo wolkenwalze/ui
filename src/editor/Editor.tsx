@@ -2,7 +2,7 @@ import "./Editor.css";
 import React from "react";
 import EditorPhase from "./EditorPhase";
 import EditorStep from "./EditorStep";
-import SchemaService, {Spec, Step as SchemaStep} from "../SchemaService";
+import SchemaService, {Spec, Step, Step as SchemaStep} from "../SchemaService";
 import Line from "./Line";
 
 interface EditorProps {
@@ -54,15 +54,24 @@ function createStep(type: string): EditorStepData {
 
 export default class Editor extends React.Component<EditorProps, EditorState> {
     private readonly startRef: React.RefObject<HTMLDivElement>;
+
     constructor(props: EditorProps) {
         super(props);
         this.state = {
             phases: []
         }
-        this.startRef=React.createRef<HTMLDivElement>()
+        this.startRef = React.createRef<HTMLDivElement>()
     }
 
-    onConnectStart = (id: string, x: number, y:number) => {
+    componentDidMount() {
+        this.props.updateService.registerSpecUpdateHandler(this.updateSpec)
+    }
+
+    componentWillUnmount() {
+        this.props.updateService.unregisterSpecUpdateHandler(this.updateSpec)
+    }
+
+    onConnectStart = (id: string, x: number, y: number) => {
         this.setState((state) => {
             return {
                 phases: state.phases,
@@ -121,6 +130,96 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
         })
     }
 
+    updateSpec = (spec: Spec) => {
+        const phases: EditorPhaseData[] = []
+        const steps: EditorStepData[] = []
+        const stepsByID: Map<string, EditorStepData> = new Map()
+        const findInboundConnections = (id: string, steps: Step[] | undefined, initialSteps: string[] | undefined) => {
+            const result: string[] = []
+            if (steps !== undefined) {
+                for (let step of steps) {
+                    for (let nextStepID of step.nextSteps) {
+                        if (nextStepID === id) {
+                            result.push(step.id)
+                            break
+                        }
+                    }
+                }
+            }
+            if (initialSteps !== undefined) {
+                for (let initialStep of initialSteps) {
+                    if (initialStep === id) {
+                        result.push("0")
+                    }
+                }
+            }
+            return result
+        }
+
+        if (spec.steps !== undefined) {
+            for (const step of spec.steps) {
+                const stepData = {
+                    id: step.id,
+                    type: step.type,
+                    inboundConnections: findInboundConnections(step.id, spec.steps, spec.initialSteps),
+                    details: new Map<string, string>(),
+                    ref: React.createRef<HTMLDivElement>()
+                }
+                steps.push(stepData)
+                stepsByID.set(stepData.id, stepData)
+            }
+        }
+
+        while (steps?.length > 0) {
+            const phase: EditorPhaseData = {
+                steps: [],
+            }
+            for (const step of steps) {
+                let hasInboundConnections = false
+                for (const inboundConnection of step.inboundConnections) {
+                    if (inboundConnection !== "0") {
+                        hasInboundConnections = true
+                        break
+                    }
+                }
+                if (!hasInboundConnections) {
+                    const stepData = stepsByID.get(step.id)
+                    if (!stepData) {
+                        throw new Error("Step with ID not found " + step.id)
+                    }
+                    phase.steps.push(stepData)
+                }
+            }
+            for (const step of phase.steps) {
+                const index = steps.indexOf(step)
+                steps.splice(index, 1)
+            }
+            phases.push(phase)
+
+            for (const step of steps) {
+                for (const removedStep of phase.steps) {
+                    const index = step.inboundConnections.indexOf(removedStep.id)
+                    if (index >= 0) {
+                        step.inboundConnections.splice(index, 1)
+                    }
+                }
+            }
+        }
+
+        this.setState((state) => {
+            return {
+                phases: phases,
+                connecting: state.connecting,
+            }
+        })
+        // Hack: update links once the refs exist.
+        setTimeout(() => {
+            this.setState((state) => {
+                return state
+            })
+        },0)
+    }
+
     setStateAndPropagate = (newState: EditorState) => {
         this.setState(() => {
             return {
@@ -158,18 +257,19 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
     }
 
     render() {
-        return <div className={"editor"}
-                    onDragOver={(e: React.DragEvent<any>) => {
-                        if (this.state.connecting) {
-                            e.preventDefault()
-                            this.onConnectMove(e.pageX, e.pageY)
-                        }
-                    }}
-                    onDragEnd={(e: React.DragEvent<any>) => {
-                        if (this.state.connecting) {
-                            this.onConnectAbort()
-                        }
-                    }}
+        return <div
+            className={"editor"}
+            onDragOver={(e: React.DragEvent<any>) => {
+                if (this.state.connecting) {
+                    e.preventDefault()
+                    this.onConnectMove(e.pageX, e.pageY)
+                }
+            }}
+            onDragEnd={(e: React.DragEvent<any>) => {
+                if (this.state.connecting) {
+                    this.onConnectAbort()
+                }
+            }}
         >
             {this.renderConnecting()}
             {this.renderConnections()}
@@ -209,7 +309,7 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
                                 type={step.type}
                                 key={step.id}
                                 draggable={true}
-                                warning={(step.inboundConnections.length === 0?"No inbound connections":"")}
+                                warning={(step.inboundConnections.length === 0 ? "No inbound connections" : "")}
                                 onConnectStart={this.onConnectStart}
                                 onConnect={this.onConnect}
                             />
@@ -253,7 +353,7 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
     }
 
     private renderConnections() {
-        const result:JSX.Element[] = []
+        const result: JSX.Element[] = []
         for (let phase of this.state.phases) {
             for (let j = 0; j < phase.steps.length; j++) {
                 const step = phase.steps[j]
@@ -266,9 +366,9 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
                     const sourceBounds = this.findCoordinates(connection)
                     result.push(
                         <Line
-                            x1={sourceBounds.x+sourceBounds.width/2}
-                            y1={sourceBounds.y+sourceBounds.height}
-                            x2={targetBounds.x+targetBounds.width/2}
+                            x1={sourceBounds.x + sourceBounds.width / 2}
+                            y1={sourceBounds.y + sourceBounds.height}
+                            x2={targetBounds.x + targetBounds.width / 2}
                             y2={targetBounds.y}
                         />
                     )
@@ -283,7 +383,7 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
         if (connecting === undefined) {
             return null
         }
-        return <Line x1={connecting.startX} y1={connecting.startY} x2={connecting.x} y2={connecting.y} />
+        return <Line x1={connecting.startX} y1={connecting.startY} x2={connecting.x} y2={connecting.y}/>
     }
 
     private static findAndRemoveStep(id: string, phases: EditorPhaseData[]) {
@@ -325,7 +425,7 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
     }
 
     private findCoordinates(id: string) {
-        const ref:React.Ref<HTMLDivElement> = this.findRef(id)
+        const ref: React.Ref<HTMLDivElement> = this.findRef(id)
         const current = ref.current
         if (current == null) {
             throw new Error("Missing ref current for " + id)

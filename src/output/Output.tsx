@@ -8,13 +8,17 @@ interface OutputProps {
 
 interface OutputState {
     data: Spec
+    content: string,
+    error: boolean,
 }
 
 export default class Output extends React.Component<OutputProps, OutputState> {
     constructor(props: OutputProps) {
         super(props);
         this.state = {
-            data: {}
+            data: {},
+            content: JSON.stringify({}, null, 2),
+            error: false,
         }
     }
 
@@ -22,6 +26,8 @@ export default class Output extends React.Component<OutputProps, OutputState> {
         this.setState(() => {
             return {
                 data: spec,
+                content: JSON.stringify(spec, null, 2),
+                error: false,
             }
         })
     }
@@ -34,11 +40,42 @@ export default class Output extends React.Component<OutputProps, OutputState> {
         this.props.updateService.unregisterDataUpdateHandler(this.onDataUpdate)
     }
 
+    onUpdate = (content: string) => {
+        let spec: Spec;
+        try {
+            spec = JSON.parse(content)
+            this.props.updateService.onUpdateSpec(spec)
+            this.setState((state) => {
+                return {
+                    data: spec,
+                    content: content,
+                    error: false,
+                }
+            })
+        } catch (e: any) {
+            this.setState((state) => {
+                return {
+                    data: state.data,
+                    content: content,
+                    error: true,
+                }
+            })
+            return
+        }
+    }
+
     render() {
         return <div className={"output"}>
             <h2 className={"output__title"}>Workflow JSON</h2>
             <div className={"output__description"}>Copy the following workflow JSON to your CI system, or paste a result JSON into this box.</div>
-            <textarea cols={80} rows={25} className={"output__content"} value={JSON.stringify(this.state.data, null, 2)} readOnly={true} />
+            <textarea
+                cols={80}
+                rows={25}
+                className={"output__content" + (this.state.error?" output__content--error":"")}
+                value={this.state.content}
+                onChange={(e:React.ChangeEvent<HTMLTextAreaElement>) => {
+                this.onUpdate(e.target.value)
+            }} />
         </div>
     }
 }

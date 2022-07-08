@@ -1,25 +1,44 @@
 
 type DataUpdateHandler = (spec: Spec) => void
+type SpecUpdateHandler = (spec: Spec) => void
 
 export default class SchemaService {
-    private handlers: DataUpdateHandler[] = []
+    private dataUpdateHandlers: DataUpdateHandler[] = []
+    private specUpdateHandlers: SpecUpdateHandler[] = []
 
     onUpdateData = (spec: Spec) => {
-        for (let d of this.handlers) {
+        for (let d of this.dataUpdateHandlers) {
             d(spec)
+        }
+    }
+
+    onUpdateSpec = (spec: Spec) => {
+        for (let s of this.specUpdateHandlers) {
+            s(spec)
         }
     }
 
     // Registers a handler to receive updates when the data is being changed.
     registerDataUpdateHandler = (handler: DataUpdateHandler) => {
-        this.handlers.push(handler)
+        this.dataUpdateHandlers.push(handler)
     }
 
     // Unregisters a handler from receiving updates about the data being changed.
     unregisterDataUpdateHandler = (handler: DataUpdateHandler) => {
-        const i = this.handlers.indexOf(handler)
+        const i = this.dataUpdateHandlers.indexOf(handler)
         if (i >= 0) {
-            this.handlers.splice(i, 1)
+            this.dataUpdateHandlers.splice(i, 1)
+        }
+    }
+
+    registerSpecUpdateHandler = (handler: SpecUpdateHandler) => {
+        this.specUpdateHandlers.push(handler)
+    }
+
+    unregisterSpecUpdateHandler = (handler: SpecUpdateHandler) => {
+        const i = this.specUpdateHandlers.indexOf(handler)
+        if (i >= 0) {
+            this.specUpdateHandlers.splice(i, 1)
         }
     }
 }
