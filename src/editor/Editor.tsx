@@ -34,12 +34,8 @@ interface EditorStepData {
     ref: React.RefObject<HTMLDivElement>
 }
 
-let nextID: number = 1;
-
 function getNextID(): string {
-    const id = nextID
-    nextID++
-    return String(id)
+    return crypto.randomUUID()
 }
 
 function createStep(type: string): EditorStepData {
@@ -187,6 +183,7 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
                     if (!stepData) {
                         throw new Error("Step with ID not found " + step.id)
                     }
+                    stepData.inboundConnections = findInboundConnections(stepData.id, spec.steps, spec.initialSteps)
                     phase.steps.push(stepData)
                 }
             }
@@ -366,6 +363,7 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
                     const sourceBounds = this.findCoordinates(connection)
                     result.push(
                         <Line
+                            key={step.id + "-" + connection}
                             x1={sourceBounds.x + sourceBounds.width / 2}
                             y1={sourceBounds.y + sourceBounds.height}
                             x2={targetBounds.x + targetBounds.width / 2}
