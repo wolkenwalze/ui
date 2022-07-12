@@ -4,6 +4,7 @@ import SchemaService, {Spec} from "../SchemaService";
 
 interface OutputProps {
     updateService: SchemaService
+    initialData?: string|undefined
 }
 
 interface OutputState {
@@ -17,7 +18,7 @@ export default class Output extends React.Component<OutputProps, OutputState> {
         super(props);
         this.state = {
             data: {},
-            content: JSON.stringify({}, null, 2),
+            content: props.initialData?props.initialData:JSON.stringify({}, null, 2),
             error: false,
         }
     }
@@ -34,6 +35,9 @@ export default class Output extends React.Component<OutputProps, OutputState> {
 
     componentDidMount = () => {
         this.props.updateService.registerDataUpdateHandler(this.onDataUpdate)
+        if (this.state.content != "{}") {
+            this.onUpdate(this.state.content)
+        }
     }
 
     componentWillUnmount = () => {

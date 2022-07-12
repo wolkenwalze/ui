@@ -9,7 +9,7 @@ import SchemaService from "./SchemaService";
 import SleepMenuEntry from "./scenarios/sleep/menu";
 
 interface AppProps {
-
+    initialData?: string
 }
 
 interface AppState {
@@ -36,7 +36,7 @@ export default class App extends React.Component<AppProps, AppState> {
                 <Editor updateService={this.updateService} />
             </div>
             <div className={"app__result"}>
-                <Output updateService={this.updateService} />
+                <Output updateService={this.updateService} initialData={this.props.initialData} />
             </div>
         </div>
     }
