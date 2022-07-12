@@ -24,10 +24,12 @@ export default class Output extends React.Component<OutputProps, OutputState> {
     }
 
     onDataUpdate = (spec: Spec) => {
+        const data = JSON.stringify(spec, null, 2)
+        window.location.hash = btoa(data)
         this.setState(() => {
             return {
                 data: spec,
-                content: JSON.stringify(spec, null, 2),
+                content: data,
                 error: false,
             }
         })
@@ -45,6 +47,7 @@ export default class Output extends React.Component<OutputProps, OutputState> {
     }
 
     onUpdate = (content: string) => {
+        window.location.hash = btoa(content)
         let spec: Spec;
         try {
             spec = JSON.parse(content)
