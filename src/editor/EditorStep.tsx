@@ -12,6 +12,7 @@ interface EditorStepProps {
     onConnectStart: (id: string, x: number, y: number) => void
     onConnect: (id: string) => void
     boxref: React.RefObject<HTMLDivElement>
+    parameters: Map<string,string>
 }
 
 interface EditorStepState {
@@ -75,6 +76,66 @@ export default class EditorStep extends React.Component<EditorStepProps, EditorS
                     return null
             }
         }
+
+        function renderParameters(type: string, parameters: Map<string, string>) {
+            function renderPodParameters(parameters: Map<string, string>) {
+                const namespacePattern = parameters.get("namespace-pattern")
+                const namePattern = parameters.get("name-pattern")
+                return <table className={"editor__step__table"}>
+                    <tbody>
+                    <tr>
+                        <th>Namespace pattern:</th>
+                        <td>{namespacePattern?namespacePattern:".*"}</td>
+                    </tr>
+                    <tr>
+                        <th>Pod name pattern:</th>
+                        <td>{namePattern?namePattern:".*"}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            }
+
+            function renderHTTPMonitorParameters(parameters: Map<string, string>) {
+                const target = parameters.get("target")
+                const time = parameters.get("time")
+                return <table className={"editor__step__table"}>
+                    <tbody>
+                    <tr>
+                        <th>Target URL:</th>
+                        <td>{target?target:"http://localhost"}</td>
+                    </tr>
+                    <tr>
+                        <th>Time:</th>
+                        <td>{time?time:"5m"}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            }
+
+            function renderSleepParameters(parameters: Map<string, string>) {
+                const time = parameters.get("time")
+                return <table className={"editor__step__table"}>
+                    <tbody>
+                    <tr>
+                        <th>Time:</th>
+                        <td>{time?time:"10s"}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            }
+
+            switch (type) {
+                case "start":
+                    return null
+                case "pod-kill":
+                    return renderPodParameters(parameters)
+                case "http-monitor":
+                    return renderHTTPMonitorParameters(parameters)
+                case "sleep":
+                    return renderSleepParameters(parameters)
+            }
+        }
+
 
         return <div
             className={"editor__step__wrapper" + (this.props.draggable ? " editor__step__wrapper--draggable" : "") + (this.props.warning ? " editor__step__wrapper--warning" : "")}
@@ -146,14 +207,7 @@ export default class EditorStep extends React.Component<EditorStepProps, EditorS
                 {this.props.type !== "start" ?
                     <>
                         <main className={"editor__step__content"}>
-                            <table>
-                                <tbody>
-                                <tr>
-                                    <th>Label:</th>
-                                    <td>app=nginx</td>
-                                </tr>
-                                </tbody>
-                            </table>
+                            {renderParameters(this.props.type, this.props.parameters)}
                         </main>
                         <footer className={"editor__step__footer"}>
                             <button className={"editor__step__button"}>Edit</button>

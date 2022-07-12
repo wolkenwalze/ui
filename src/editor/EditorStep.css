@@ -145,3 +145,15 @@
 .editor__step__button[disabled]:hover {
     background-color: #eee;
 }
+
+.editor__step__table {
+    min-height:6rem;
+}
+
+.editor__step__table th {
+    text-align: left;
+}
+
+.editor__step__table td {
+    min-width:150px;
+}

@@ -262,7 +262,7 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
                     this.onConnectMove(e.pageX, e.pageY)
                 }
             }}
-            onDragEnd={(e: React.DragEvent<any>) => {
+            onDragEnd={() => {
                 if (this.state.connecting) {
                     this.onConnectAbort()
                 }
@@ -278,6 +278,7 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
                     draggable={false}
                     onConnectStart={this.onConnectStart}
                     onConnect={this.onConnect}
+                    parameters={new Map()}
                 />
             </EditorPhase>
             {this.state.phases.map((phase, i) => {
@@ -309,6 +310,7 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
                                 warning={(step.inboundConnections.length === 0 ? "No inbound connections" : "")}
                                 onConnectStart={this.onConnectStart}
                                 onConnect={this.onConnect}
+                                parameters={step.details}
                             />
                         )
                     }
