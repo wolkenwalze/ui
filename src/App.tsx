@@ -6,6 +6,7 @@ import HTTPMonitorMenuEntry from "./scenarios/http/menu";
 import Output from "./output/Output";
 import Editor from "./editor/Editor";
 import SchemaService from "./SchemaService";
+import SleepMenuEntry from "./scenarios/sleep/menu";
 
 interface AppProps {
 
@@ -28,6 +29,7 @@ export default class App extends React.Component<AppProps, AppState> {
                 <Menu>
                     <PodScenarioMenuEntry />
                     <HTTPMonitorMenuEntry />
+                    <SleepMenuEntry />
                 </Menu>
             </div>
             <div className={"app__main"}>

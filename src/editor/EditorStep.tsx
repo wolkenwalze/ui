@@ -2,6 +2,7 @@ import React from "react";
 import "./EditorStep.css"
 import {ReactComponent as PodIcon} from "../scenarios/pod/pod.svg";
 import {ReactComponent as HTTPIcon} from "../scenarios/http/http.svg";
+import {ReactComponent as SleepIcon} from "../scenarios/sleep/sleep.svg";
 
 interface EditorStepProps {
     warning?: string
@@ -49,6 +50,32 @@ export default class EditorStep extends React.Component<EditorStepProps, EditorS
     }
 
     render() {
+        function getTitle(type: string) {
+            switch (type) {
+                case "pod-kill":
+                    return "Pod scenario"
+                case "http-monitor":
+                    return "HTTP monitor"
+                case "sleep":
+                    return "Sleep"
+                default:
+                    return "Start"
+            }
+        }
+
+        function getIcon(type: string) {
+            switch (type) {
+                case "pod-kill":
+                    return <PodIcon/>
+                case "http-monitor":
+                    return <HTTPIcon/>
+                case "sleep":
+                    return <SleepIcon />
+                default:
+                    return null
+            }
+        }
+
         return <div
             className={"editor__step__wrapper" + (this.props.draggable ? " editor__step__wrapper--draggable" : "") + (this.props.warning ? " editor__step__wrapper--warning" : "")}
             draggable={this.props.draggable}
@@ -106,12 +133,13 @@ export default class EditorStep extends React.Component<EditorStepProps, EditorS
                     {this.props.type !== "start" ?
                         <div className={"editor__step__icon"}>
                             {
-                                this.props.type === "pod-kill" ? <PodIcon/> : <HTTPIcon/>
+                                getIcon(this.props.type)
+
                             }
                         </div> : null}
                     <h2 className={"editor__step__title"}>
                         {
-                            this.props.type === "pod-kill" ? "Pod scenario" : (this.props.type === "http-monitor" ? "HTTP monitor" : "Start")
+                            getTitle(this.props.type)
                         }
                     </h2>
                 </header>

@@ -3,3 +3,16 @@
     overflow-x: auto;
     overflow-y: auto;
 }
+
+.editor:before {
+    display:block;
+    content:" ";
+    position:absolute;
+    top:0;
+    left:0;
+    bottom:0;
+    right:0;
+    opacity:0.05;
+    z-index:-1;
+    background: url("wolkenwalze.png") no-repeat center center;
+}
