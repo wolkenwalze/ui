@@ -45,7 +45,7 @@ export default class Output extends React.Component<OutputProps, OutputState> {
         try {
             spec = JSON.parse(content)
             this.props.updateService.onUpdateSpec(spec)
-            this.setState((state) => {
+            this.setState(() => {
                 return {
                     data: spec,
                     content: content,
