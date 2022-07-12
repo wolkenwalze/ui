@@ -35,7 +35,7 @@ export default class Output extends React.Component<OutputProps, OutputState> {
 
     componentDidMount = () => {
         this.props.updateService.registerDataUpdateHandler(this.onDataUpdate)
-        if (this.state.content != "{}") {
+        if (this.state.content !== "{}") {
             this.onUpdate(this.state.content)
         }
     }
