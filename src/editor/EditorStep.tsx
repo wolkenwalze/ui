@@ -11,6 +11,7 @@ interface EditorStepProps {
     draggable: boolean
     onConnectStart: (id: string, x: number, y: number) => void
     onConnect: (id: string) => void
+    onEdit?: () => void
     boxref: React.RefObject<HTMLDivElement>
     parameters: Map<string,string>
 }
@@ -113,6 +114,10 @@ export default class EditorStep extends React.Component<EditorStepProps, EditorS
             }
 
             function renderSleepParameters(parameters: Map<string, string>) {
+                if (!parameters) {
+                    parameters = new Map<string,string>()
+                }
+
                 const time = parameters.get("time")
                 return <table className={"editor__step__table"}>
                     <tbody>
@@ -135,7 +140,6 @@ export default class EditorStep extends React.Component<EditorStepProps, EditorS
                     return renderSleepParameters(parameters)
             }
         }
-
 
         return <div
             className={"editor__step__wrapper" + (this.props.draggable ? " editor__step__wrapper--draggable" : "") + (this.props.warning ? " editor__step__wrapper--warning" : "")}
@@ -210,7 +214,7 @@ export default class EditorStep extends React.Component<EditorStepProps, EditorS
                             {renderParameters(this.props.type, this.props.parameters)}
                         </main>
                         <footer className={"editor__step__footer"}>
-                            <button className={"editor__step__button"}>Edit</button>
+                            <button className={"editor__step__button"} onClick={this.props.onEdit}>Edit</button>
                             <button
                                 className={"editor__step__button"}
                                 disabled={true}

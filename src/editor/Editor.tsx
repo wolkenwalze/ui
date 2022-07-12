@@ -4,6 +4,7 @@ import EditorPhase from "./EditorPhase";
 import EditorStep from "./EditorStep";
 import SchemaService, {Spec, Step, Step as SchemaStep} from "../SchemaService";
 import Line from "./Line";
+import EditorDialog from "./EditorDialog";
 
 interface EditorProps {
     updateService: SchemaService
@@ -20,6 +21,9 @@ interface Connecting {
 interface EditorState {
     phases: EditorPhaseData[]
     connecting?: Connecting
+    editId?: string
+    editType?: string
+    editParams?: Map<string,string>
 }
 
 interface EditorPhaseData {
@@ -158,7 +162,7 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
                     id: step.id,
                     type: step.type,
                     inboundConnections: findInboundConnections(step.id, spec.steps, spec.initialSteps),
-                    details: new Map<string, string>(),
+                    details: step.params?new Map(Object.entries(step.params)):new Map(),
                     ref: React.createRef<HTMLDivElement>()
                 }
                 steps.push(stepData)
@@ -207,6 +211,9 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
             return {
                 phases: phases,
                 connecting: state.connecting,
+                editId: state.editId,
+                editType: state.editType,
+                editParams: state.editParams,
             }
         })
         // Hack: update links once the refs exist.
@@ -221,6 +228,9 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
         this.setState(() => {
             return {
                 phases: Editor.cleanupPhases(newState.phases),
+                editId: newState.editId,
+                editType: newState.editType,
+                editParams: newState.editParams,
             }
         })
         const steps: Map<string, SchemaStep> = new Map()
@@ -230,7 +240,7 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
                 steps.set(step.id, {
                     id: step.id,
                     type: step.type,
-                    params: new Map(),
+                    params: step.details?Object.fromEntries(step.details): {},
                     nextSteps: []
                 })
                 for (const prevStep of step.inboundConnections) {
@@ -268,6 +278,42 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
                 }
             }}
         >
+            {this.state.editId!==undefined?<EditorDialog
+                type={this.state.editType as string}
+                params={this.state.editParams as Map<string,string>}
+                onSave={(params) => {
+                    const phases = this.state.phases
+                    if (this.state.editId !== undefined) {
+                        for (let i = 0; i < phases.length; i++) {
+                            const phase = phases[i]
+                            for (let j = 0; j < phase.steps.length; j++) {
+                                const step = phase.steps[j]
+                                if (step.id === this.state.editId) {
+                                    step.details = params
+                                }
+                            }
+                        }
+                    }
+                    this.setStateAndPropagate({
+                        connecting: this.state.connecting,
+                        phases: phases,
+                        editId: undefined,
+                        editType: undefined,
+                        editParams: undefined,
+                    })
+                }}
+                onCancel={() => {
+                    this.setState((state) => {
+                        return {
+                            connecting: state.connecting,
+                            phases: state.phases,
+                            editId: undefined,
+                            editType: undefined,
+                            editParams: undefined,
+                        }
+                    })
+                }}
+            />:null}
             {this.renderConnecting()}
             {this.renderConnections()}
             <EditorPhase noDrops={true}>
@@ -311,6 +357,17 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
                                 onConnectStart={this.onConnectStart}
                                 onConnect={this.onConnect}
                                 parameters={step.details}
+                                onEdit={() => {
+                                    this.setState((state) => {
+                                        return {
+                                            connecting: state.connecting,
+                                            phases: state.phases,
+                                            editId: step.id,
+                                            editType: step.type,
+                                            editParams: step.details,
+                                        }
+                                    })
+                                }}
                             />
                         )
                     }
@@ -327,7 +384,10 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
                     };
                     phases.push(phase)
 
-                    this.setStateAndPropagate({phases})
+                    this.setStateAndPropagate({
+                        phases: phases,
+
+                    })
                 }}
                 onDropID={(id) => {
                     const phases = this.state.phases;

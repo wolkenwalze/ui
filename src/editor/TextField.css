@@ -1,0 +1,21 @@
+.editor__dialog__form__field {
+    margin-bottom:1.5rem;
+    position:relative;
+    font-size:0.8rem;
+}
+.editor__dialog__form__field label {
+    line-height:1.5rem;
+    display: block;
+}
+
+.editor__dialog__form__field input {
+    width:100%;
+    border-radius:0.375rem;
+    height:1.5rem;
+    line-height:1.5rem;
+    border:1px solid #777777;
+    box-sizing: border-box;
+    padding-left:0.375rem;
+    padding-right:0.375rem;
+    font-family: monospace;
+}

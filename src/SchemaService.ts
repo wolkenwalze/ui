@@ -52,7 +52,7 @@ export interface Spec {
 export interface Step {
     id: string
     type: string
-    params: Map<string,string>
+    params: {[key: string]:string}
     nextSteps: string[]
 }
 
