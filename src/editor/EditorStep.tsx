@@ -3,6 +3,7 @@ import "./EditorStep.css"
 import {ReactComponent as PodIcon} from "../scenarios/pod/pod.svg";
 import {ReactComponent as HTTPIcon} from "../scenarios/http/http.svg";
 import {ReactComponent as SleepIcon} from "../scenarios/sleep/sleep.svg";
+import Result from "../Result";
 
 interface EditorStepProps {
     warning?: string
@@ -12,8 +13,10 @@ interface EditorStepProps {
     onConnectStart: (id: string, x: number, y: number) => void
     onConnect: (id: string) => void
     onEdit?: () => void
+    onResults?: () => void
     boxref: React.RefObject<HTMLDivElement>
-    parameters: Map<string,string>
+    parameters: Map<string,string>,
+    result?:Result
 }
 
 interface EditorStepState {
@@ -142,7 +145,12 @@ export default class EditorStep extends React.Component<EditorStepProps, EditorS
         }
 
         return <div
-            className={"editor__step__wrapper" + (this.props.draggable ? " editor__step__wrapper--draggable" : "") + (this.props.warning ? " editor__step__wrapper--warning" : "")}
+            className={
+                "editor__step__wrapper" +
+                (this.props.draggable ? " editor__step__wrapper--draggable" : "") +
+                (this.props.warning ? " editor__step__wrapper--warning" : "") +
+                (this.props.result ? (this.props.result.success?" editor__step__wrapper--success":" editor__step__wrapper--error"):"")
+            }
             draggable={this.props.draggable}
             onDragStart={this.onDragStart}
             onDragOver={(e: React.DragEvent<any>) => {
@@ -194,7 +202,7 @@ export default class EditorStep extends React.Component<EditorStepProps, EditorS
                 </div>
                 : null}
             <div className={"editor__step" + (this.state.connecting?" editor__step--connecting":"")} ref={this.props.boxref}>
-                <header className={"editor__step__header"}>
+                <header className={"editor__step__header"} title={this.props.result?this.props.result.error:""}>
                     {this.props.type !== "start" ?
                         <div className={"editor__step__icon"}>
                             {
@@ -217,8 +225,9 @@ export default class EditorStep extends React.Component<EditorStepProps, EditorS
                             <button className={"editor__step__button"} onClick={this.props.onEdit}>Edit</button>
                             <button
                                 className={"editor__step__button"}
-                                disabled={true}
-                                title={"Please paste a result JSON into the box on the right to view results."}
+                                disabled={this.props.result === undefined}
+                                title={this.props.result?this.props.result.error:"Please paste a result JSON into the box on the right to view results."}
+                                onClick={this.props.onResults}
                             >Results
                             </button>
                         </footer>

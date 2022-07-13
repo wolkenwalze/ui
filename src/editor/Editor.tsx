@@ -5,6 +5,8 @@ import EditorStep from "./EditorStep";
 import SchemaService, {Spec, Step, Step as SchemaStep} from "../SchemaService";
 import Line from "./Line";
 import EditorDialog from "./EditorDialog";
+import Result from "../Result";
+import ResultDialog from "./ResultDialog";
 
 interface EditorProps {
     updateService: SchemaService
@@ -21,9 +23,12 @@ interface Connecting {
 interface EditorState {
     phases: EditorPhaseData[]
     connecting?: Connecting
+    resultsId?: string
+    resultsType?: string
     editId?: string
     editType?: string
     editParams?: Map<string,string>
+    results?: Map<string,Result>
 }
 
 interface EditorPhaseData {
@@ -81,7 +86,8 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
                     startY: y,
                     x: x,
                     y: y,
-                }
+                },
+                results: state.results,
             }
         })
     }
@@ -99,7 +105,8 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
                     startY: state.connecting.startY,
                     x: x,
                     y: y,
-                }
+                },
+                results: state.results,
             }
         })
     }
@@ -109,6 +116,7 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
             return {
                 phases: state.phases,
                 connecting: undefined,
+                results: state.results,
             }
         })
     }
@@ -170,6 +178,21 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
             }
         }
 
+        const results = new Map<string,Result>()
+        if (spec.result !== undefined) {
+            for (const id in spec.result) {
+                const specResult = spec.result[id]
+                const result:Result = {
+                    success: specResult.success,
+                    error: specResult.error,
+                    latencies: specResult.latencies?new Map(Object.entries(specResult.latencies)):undefined,
+                    podNamespace: specResult.podNamespace,
+                    podName: specResult.podName
+                }
+                results.set(id, result)
+            }
+        }
+
         while (steps?.length > 0) {
             const phase: EditorPhaseData = {
                 steps: [],
@@ -214,6 +237,7 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
                 editId: state.editId,
                 editType: state.editType,
                 editParams: state.editParams,
+                results: results,
             }
         })
         // Hack: update links once the refs exist.
@@ -231,6 +255,7 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
                 editId: newState.editId,
                 editType: newState.editType,
                 editParams: newState.editParams,
+                results: this.state.results,
             }
         })
         const steps: Map<string, SchemaStep> = new Map()
@@ -278,6 +303,24 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
                 }
             }}
         >
+            {this.state.resultsId!== undefined?<ResultDialog
+                id={this.state.resultsId}
+                type={this.state.resultsType as string}
+                result={this.state.results?.get(this.state.resultsId) as Result}
+                onClose={() => {
+                    this.setState((state) => {
+                        return {
+                            connecting: state.connecting,
+                            phases: state.phases,
+                            editId: undefined,
+                            editType: undefined,
+                            editParams: undefined,
+                            resultsId: undefined,
+                            resultsType: undefined,
+                            results: state.results,
+                        }
+                    })
+                }} />:null}
             {this.state.editId!==undefined?<EditorDialog
                 type={this.state.editType as string}
                 params={this.state.editParams as Map<string,string>}
@@ -300,6 +343,7 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
                         editId: undefined,
                         editType: undefined,
                         editParams: undefined,
+                        results: this.state.results,
                     })
                 }}
                 onCancel={() => {
@@ -310,6 +354,7 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
                             editId: undefined,
                             editType: undefined,
                             editParams: undefined,
+                            results: state.results,
                         }
                     })
                 }}
@@ -357,6 +402,18 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
                                 onConnectStart={this.onConnectStart}
                                 onConnect={this.onConnect}
                                 parameters={step.details}
+                                result={this.state.results?.get(step.id)}
+                                onResults={() => {
+                                    this.setState((state) => {
+                                        return {
+                                            connecting: state.connecting,
+                                            phases: state.phases,
+                                            resultsId: step.id,
+                                            resultsType: step.type,
+                                            results: state.results,
+                                        }
+                                    })
+                                }}
                                 onEdit={() => {
                                     this.setState((state) => {
                                         return {
@@ -365,6 +422,7 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
                                             editId: step.id,
                                             editType: step.type,
                                             editParams: step.details,
+                                            results: state.results,
                                         }
                                     })
                                 }}
@@ -386,7 +444,7 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
 
                     this.setStateAndPropagate({
                         phases: phases,
-
+                        results: this.state.results,
                     })
                 }}
                 onDropID={(id) => {

@@ -1,0 +1,83 @@
+.editor__results__background, .editor__results__wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+
+.editor__results__background {
+    z-index:1;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.editor__results__wrapper {
+    z-index:2;
+    display:flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.editor__results__window {
+    position:relative;
+    width:50rem;
+    border-radius:0.75rem;
+    background:#fff;
+    margin-left:auto;
+    margin-right:auto;
+    border:1px solid #777777;
+}
+
+.editor__results header h2 {
+    margin:0;
+    text-align:center;
+    line-height:3rem;
+    border-bottom:1px solid #777777;
+}
+
+.editor__results__window main {
+    position:relative;
+    margin:0.75rem;
+}
+
+.editor__results__window footer {
+    display:flex;
+    flex-direction: row;
+    border-top:1px solid #777777;
+}
+
+.editor__results__window footer button {
+    flex: 1;
+    margin:0.75rem;
+    background:#ffffff;
+    border:1px solid #777777;
+    border-radius: 0.375rem;
+    cursor: pointer;
+}
+
+.editor__results__window footer button.default {
+    background-color:#6fc8ff;
+}
+
+.editor__results__window footer button:hover {
+    background-color: #ffaa00;
+    border-color:#777777;
+}
+
+.editor__results__window .error {
+    color: #c10000;
+}
+
+.editor__results table {
+    font-size:0.8rem;
+}
+
+.editor__results table th {
+    text-align: left;
+    width:50%;
+}
+
+.latencies {
+    position: relative;
+    height:300px;
+}

@@ -33,6 +33,22 @@
     border-radius:0.75rem;
 }
 
+.editor__step__wrapper--success .editor__step {
+    border-color: #00a800;
+}
+
+.editor__step__wrapper--success .editor__step__title {
+    color: #00a800;
+}
+
+.editor__step__wrapper--error .editor__step {
+    border-color: #c10000;
+}
+
+.editor__step__wrapper--error .editor__step__title {
+    color: #c10000;
+}
+
 .editor__step.editor__step--connecting {
     background-color: #6fc8ff;
 }

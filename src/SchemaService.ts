@@ -46,7 +46,7 @@ export default class SchemaService {
 export interface Spec {
     initialSteps?: string[]
     steps?: Step[]
-    results?: Map<string,Result>
+    result?: {[key: string]:Result}
 }
 
 export interface Step {
@@ -57,7 +57,9 @@ export interface Step {
 }
 
 export interface Result {
-    type: string,
     success: boolean
-    data: any
+    error: string
+    latencies?: {[key: string]:number}
+    podNamespace?: string
+    podName?: string
 }
